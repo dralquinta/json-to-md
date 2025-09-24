@@ -421,7 +421,11 @@ class OracleDocsScraper:
         
         pages_to_visit: List[Tuple[str, int, Optional[str]]] = [(start_url, 0, None)]  # (url, level, parent_url)
         
-        with tqdm(desc="Crawling pages") as pbar:
+        # Initialize progress tracking
+        total_discovered = 1  # Start with the initial URL
+        total_processed = 0
+        
+        with tqdm(desc="Crawling pages", unit="pages", colour="blue") as pbar:
             while pages_to_visit:
                 url, level, parent_url = pages_to_visit.pop(0)
                 
@@ -431,7 +435,23 @@ class OracleDocsScraper:
                 scraped_page = self.scrape_page(url, level, parent_url)
                 if scraped_page:
                     self.scraped_pages.append(scraped_page)
-                    pbar.set_description(f"Crawled: {scraped_page.title[:50]}...")
+                    total_processed += 1
+                    queue_size = len(pages_to_visit)
+                    
+                    # Update total discovered count with new children
+                    if scraped_page.children_urls:
+                        new_children = len([url for url in scraped_page.children_urls if url not in self.visited_urls])
+                        total_discovered += new_children
+                    
+                    # Calculate completion percentage
+                    completion_pct = (total_processed / total_discovered) * 100 if total_discovered > 0 else 0
+                    
+                    pbar.set_description(f"📄 {scraped_page.title[:35]}... | {completion_pct:.1f}% | L{scraped_page.level}")
+                    pbar.set_postfix({
+                        'Done': total_processed,
+                        'Queue': queue_size,
+                        'Found': total_discovered
+                    })
                     pbar.update(1)
                     
                     # Add children to visit queue
@@ -539,12 +559,16 @@ def main():
         pages = scraper.crawl(args.url)
         
         if pages:
-            # Save URLs in markdown format
-            markdown_file = scraper.save_to_markdown(args.output)
-            
-            # Also save as simple URL list
-            url_list_filename = args.output.replace('.md', '.txt') if args.output else 'oracle_docs_urls.txt'
-            urls_file = scraper.save_urls_list(url_list_filename)
+            # Save URLs in markdown format in scraped_docs directory
+            if args.output:
+                # Just use the basename since save_to_markdown will add the output_dir
+                markdown_file = scraper.save_to_markdown(os.path.basename(args.output))
+                # Also save as simple URL list
+                url_list_filename = os.path.basename(args.output).replace('.md', '.txt')
+                urls_file = scraper.save_urls_list(url_list_filename)
+            else:
+                markdown_file = scraper.save_to_markdown()
+                urls_file = scraper.save_urls_list()
             
             print(f"\n✅ Successfully scraped {len(pages)} URLs!")
             print(f"📄 Structured markdown: {markdown_file}")

@@ -32,7 +32,7 @@ python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm
 ### Advanced Usage
 
 ```bash
-python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --max-depth 10 --delay 2.0 --output oracle_docs_scraped.md --output-dir scraped_docs
+ python scrapper_fast.py https://docs.oracle.com/en-us/iaas/Content/services.htm --max-depth 10 --max-concurrent 15 --delay 0.05 --output oracle_fast_test.md
 ```
 
 ### Command Line Arguments
