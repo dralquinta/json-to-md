@@ -16,7 +16,7 @@ A comprehensive web scraper designed to crawl Oracle Cloud Infrastructure docume
 
 1. Install the required dependencies:
 ```bash
-pip install -r requirements.txt
+init-env.sh
 ```
 
 ## Usage
@@ -32,17 +32,7 @@ python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm
 ### Advanced Usage
 
 ```bash
-# Scrape with custom depth limit
-python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --max-depth 2
-
-# Increase delay between requests (more respectful)
-python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --delay 2.0
-
-# Custom output filename
-python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --output oracle_oci_docs.md
-
-# Custom output directory
-python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --output-dir ./my_docs
+python scrapper.py https://docs.oracle.com/en-us/iaas/Content/services.htm --max-depth 10 --delay 2.0 --output oracle_docs_scraped.md --output-dir scraped_docs
 ```
 
 ### Command Line Arguments
